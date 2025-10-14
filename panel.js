@@ -1,46 +1,60 @@
 const ul = document.getElementById("list");
 const addBtn = document.getElementById("add");
+const settingsBtn = document.getElementById("settings-btn");
+const settingsPanel = document.getElementById("settings-panel");
+const closeSettingsBtn = document.getElementById("close-settings-btn");
+const saveSettingsBtn = document.getElementById("save-settings-btn");
+const collapsedSizeInput = document.getElementById("collapsed-size");
+const collapsedSizeValue = document.getElementById("collapsed-size-value");
+const primaryColorInput = document.getElementById("primary-color");
+const iconColorInput = document.getElementById("icon-color");
+const panelBgColorInput = document.getElementById("panel-bg-color");
+
+// --- Initialization ---
 const urlParams = new URLSearchParams(window.location.search);
 const key = urlParams.get('key');
-
 let bookmarks = JSON.parse(localStorage.getItem("swaggerBookmarks_" + key) || "[]");
-
-// Start in collapsed state
-document.body.classList.add("collapsed");
-
-render();
-
 let selecting = false;
 
-addBtn.onclick = () => {
-  if (!selecting) {
-    selecting = true;
-    addBtn.textContent = "選取中...";
-    addBtn.style.background = "#ff5252";
-    parent.postMessage({type: "enterSelectMode"}, "*");
-  }
+// 預設設定
+const defaultSettings = {
+  collapsedSize: 40,
+  primaryColor: '#0078d7',
+  iconColor: '#ffffff',
+  panelBgColor: '#fafafa',
 };
 
-window.addEventListener("message", (e) => {
-  if (e.data.type === "addBookmark") {
-    bookmarks.push({name: e.data.name, selector: e.data.selector});
-    localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
-    render();
+// --- Functions ---
+function applySettings(settings) {
+  const root = document.documentElement;
+  root.style.setProperty('--collapsed-size', settings.collapsedSize + 'px');
+  root.style.setProperty('--primary-color', settings.primaryColor);
+  root.style.setProperty('--icon-color', settings.iconColor);
+  root.style.setProperty('--panel-bg-color', settings.panelBgColor);
 
-    addBtn.textContent = "＋";
-    addBtn.style.background = "white";
-    selecting = false;
-  } else if (e.data.type === "exitSelectMode") {
-    addBtn.textContent = "＋";
-    addBtn.style.background = "white";
-    selecting = false;
-  } else if (e.data.type === "expand") {
-    document.body.classList.remove("collapsed");
-  } else if (e.data.type === "collapse") {
-    document.body.classList.add("collapsed");
-  }
-});
+  // 通知 content script 更新 iframe 尺寸
+  parent.postMessage({ type: "updateCollapsedSize", size: settings.collapsedSize }, "*");
+}
 
+/** 從 localStorage 載入設定 */
+function loadSettings() {
+  const savedSettings = JSON.parse(localStorage.getItem("swaggerBookmarks_settings"));
+  // 合併已儲存設定與預設值
+  const settings = { ...defaultSettings, ...savedSettings };
+  applySettings(settings);
+  return settings;
+}
+
+/** 將設定表單的值更新為目前的設定 */
+function populateSettingsForm(settings) {
+    collapsedSizeInput.value = settings.collapsedSize;
+    collapsedSizeValue.textContent = settings.collapsedSize + 'px';
+    primaryColorInput.value = settings.primaryColor;
+    iconColorInput.value = settings.iconColor;
+    panelBgColorInput.value = settings.panelBgColor;
+}
+
+/** 渲染書籤列表 */
 function render() {
   ul.innerHTML = "";
   bookmarks.forEach((b, i) => {
@@ -62,3 +76,71 @@ function render() {
     ul.appendChild(li);
   });
 }
+
+// --- Event Listeners ---
+// "新增書籤" 按鈕
+addBtn.onclick = () => {
+  if (!selecting) {
+    selecting = true;
+    addBtn.textContent = "選取中...";
+    addBtn.style.background = "#ff5252";
+    parent.postMessage({type: "enterSelectMode"}, "*");
+  }
+};
+
+// 來自 content script 或自身的訊息
+window.addEventListener("message", (e) => {
+  if (e.data.type === "addBookmark") {
+    bookmarks.push({name: e.data.name, selector: e.data.selector});
+    localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
+    render();
+
+    addBtn.textContent = "＋";
+    addBtn.style.background = ""; // 恢復預設
+    selecting = false;
+  } else if (e.data.type === "exitSelectMode") {
+    addBtn.textContent = "＋";
+    addBtn.style.background = ""; // 恢復預設
+    selecting = false;
+  } else if (e.data.type === "expand") {
+    document.body.classList.remove("collapsed");
+  } else if (e.data.type === "collapse") {
+    document.body.classList.add("collapsed");
+  }
+});
+
+// 打開設定面板
+settingsBtn.onclick = () => {
+  const currentSettings = loadSettings();
+  populateSettingsForm(currentSettings);
+  settingsPanel.classList.remove("hidden");
+};
+
+// 關閉設定面板
+closeSettingsBtn.onclick = () => {
+  settingsPanel.classList.add("hidden");
+};
+
+// 儲存設定
+saveSettingsBtn.onclick = () => {
+  const newSettings = {
+    collapsedSize: parseInt(collapsedSizeInput.value, 10),
+    primaryColor: primaryColorInput.value,
+    iconColor: iconColorInput.value,
+    panelBgColor: panelBgColorInput.value,
+  };
+  localStorage.setItem("swaggerBookmarks_settings", JSON.stringify(newSettings));
+  applySettings(newSettings);
+  settingsPanel.classList.add("hidden");
+};
+
+// 即時顯示尺寸滑桿的數值
+collapsedSizeInput.oninput = () => {
+  collapsedSizeValue.textContent = collapsedSizeInput.value + 'px';
+};
+
+
+// --- Initial Run ---
+document.body.classList.add("collapsed");
+loadSettings(); // 首次載入時就讀取並套用設定
+render();

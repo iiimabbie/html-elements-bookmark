@@ -18,6 +18,11 @@
   // 檢查是否已存在
   if (document.querySelector("#swaggerBookmarkPanel")) return;
 
+    // 用一個變數來儲存收合尺寸，以便動態更新
+  let collapsedSize = 40;
+  let isAnimating = false;
+  const animationDuration = 200;
+
   const iframe = document.createElement("iframe");
   iframe.id = "swaggerBookmarkPanel";
   const pageKey = location.origin + location.pathname;
@@ -26,33 +31,45 @@
     position: fixed;
     top: 100px;
     right: 20px;
-    width: 40px;
-    height: 40px;
+    width: ${collapsedSize}px;
+    height: ${collapsedSize}px;
     border: none;
     z-index: 999999;
     background: transparent;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     border-radius: 50%;
-    transition: all 0.2s ease-in-out;
+    transition: all ${animationDuration / 1000}s ease-in-out;
     overflow: hidden;
   `;
   document.body.appendChild(iframe);
 
   iframe.addEventListener('mouseenter', () => {
+    if (isAnimating) return; // 如果正在執行動畫，則忽略此事件
+    isAnimating = true; // 鎖定
+
     iframe.style.width = '260px';
     iframe.style.height = '320px';
     iframe.style.borderRadius = '8px';
     iframe.style.boxShadow = '-2px 0 8px rgba(0,0,0,0.2)';
     iframe.style.right = '0';
     iframe.contentWindow.postMessage({ type: "expand" }, "*");
+
+    // 在動畫時間結束後解鎖
+    setTimeout(() => { isAnimating = false; }, animationDuration);
   });
   iframe.addEventListener('mouseleave', () => {
-    iframe.style.width = '40px';
-    iframe.style.height = '40px';
+    if (isAnimating) return; // 如果正在執行動畫，則忽略此事件
+    isAnimating = true; // 鎖定
+
+    iframe.style.width = collapsedSize + 'px'; // 使用變數
+    iframe.style.height = collapsedSize + 'px'; // 使用變數
     iframe.style.borderRadius = '50%';
     iframe.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
     iframe.style.right = '20px';
     iframe.contentWindow.postMessage({ type: "collapse" }, "*");
+
+    // 在動畫時間結束後解鎖
+    setTimeout(() => { isAnimating = false; }, animationDuration);
   });
 
   let selecting = false;
@@ -71,7 +88,15 @@
 
   // 通信：滾動到元素
   window.addEventListener("message", (e) => {
-    if (e.data.type === "scrollToElement") {
+    // 監聽來自 panel 的尺寸更新訊息
+    if (e.data.type === "updateCollapsedSize") {
+      collapsedSize = e.data.size;
+      // 如果當前是收合狀態，立即套用新尺寸
+      if (iframe.style.width !== '260px') {
+        iframe.style.width = collapsedSize + 'px';
+        iframe.style.height = collapsedSize + 'px';
+      }
+    } else if (e.data.type === "scrollToElement") {
       const el = document.querySelector(e.data.selector);
       if (el) {
         el.scrollIntoView({behavior: "smooth", block: "center"});

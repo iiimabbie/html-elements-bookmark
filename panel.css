@@ -1,47 +1,65 @@
+:root {
+  --collapsed-size: 40px;
+  --primary-color: #0078d7;
+  --icon-color: #ffffff;
+  --panel-bg-color: #fafafa;
+  --text-color: #333;
+  --list-item-bg: #ffffff;
+  --list-item-hover-bg: #e3f2fd;
+  --danger-color: #ff5252;
+}
+
 html {
   background: transparent;
 }
+
 body {
   font-family: system-ui;
   margin: 0;
   padding: 0;
-  background: #fafafa;
-  color: #333;
+  background: var(--panel-bg-color);
+  color: var(--text-color);
   overflow: hidden;
   transition: background 0.1s;
 }
+
 #header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #0078d7;
-  color: white;
+  background: var(--primary-color);
+  color: var(--icon-color);
   padding: 6px 10px;
   white-space: nowrap;
   transition: all 0.2s;
 }
+
 #header-title {
   display: flex;
   align-items: center;
   gap: 6px;
   overflow: hidden;
 }
+
 #header-title svg {
   flex-shrink: 0;
   transition: fill 0.2s;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,0.3));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
 }
+
 #add {
-  background: white;
-  color: #0078d7;
+  background: var(--list-item-bg);
+  color: var(--primary-color);
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
 }
+
 #add:hover {
-  background: #e3f2fd;
+  background: var(--list-item-hover-bg);
 }
+
 #list {
   list-style: none;
   margin: 0;
@@ -49,20 +67,23 @@ body {
   max-height: 260px;
   overflow-y: auto;
 }
+
 #list li {
   margin: 4px 0;
   padding: 4px 8px;
-  background: white;
+  background: var(--list-item-bg);
   border-radius: 4px;
   cursor: pointer;
-  box-shadow: 0 0 2px rgba(0,0,0,0.1);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 #list li:hover {
-  background: #e3f2fd;
+  background: var(--list-item-hover-bg);
 }
+
 #list li button {
   background: none;
   border: none;
@@ -71,28 +92,149 @@ body {
   font-size: 16px;
   padding: 0 4px;
 }
+
 #list li button:hover {
-  color: #ff5252;
+  color: var(--danger-color);
 }
 
 /* Collapsed state */
 body.collapsed {
   background: transparent;
 }
+
 body.collapsed #header {
-  background: #0078d7;
+  background: var(--primary-color);
   justify-content: center;
   padding: 0;
-  width: 40px;
-  height: 40px;
+  width: var(--collapsed-size);
+  height: var(--collapsed-size);
   border-radius: 50%;
 }
+
 body.collapsed #header-title svg {
-  fill: white;
+  fill: var(--icon-color);
   filter: none;
 }
+
 body.collapsed #header-title span,
 body.collapsed #add,
 body.collapsed #list {
   display: none;
+}
+
+/* 隱藏設定按鈕當面板收合時 */
+body.collapsed #settings-btn {
+  display: none;
+}
+
+
+/* --- 設定介面所有樣式 --- */
+#settings-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#settings-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+#settings-btn svg {
+  fill: #888;
+}
+
+#settings-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--panel-bg-color);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  transition: opacity 0.2s, transform 0.2s;
+  transform: translateX(0);
+}
+
+#settings-panel.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(100%);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #f0f0f0;
+  flex-shrink: 0;
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+#close-settings-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+}
+
+.settings-content {
+  padding: 15px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.setting-item label {
+  font-size: 14px;
+}
+
+.setting-item input[type="range"] {
+  width: 100px;
+}
+
+.setting-item input[type="color"] {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 40px;
+  height: 24px;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.settings-footer {
+  padding: 10px;
+  text-align: right;
+  border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+#save-settings-btn {
+  background: var(--primary-color);
+  color: var(--icon-color);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
 }
