@@ -114,6 +114,18 @@
     }
   });
 
+  // 監聽主頁面的鍵盤事件
+  document.addEventListener('keydown', (e) => {
+    // 如果正在選取中，且使用者按下 Esc 鍵
+    if (selecting && e.key === 'Escape') {
+      selecting = false;
+      hoverBox.style.display = 'none'; // 隱藏紅色框線
+      
+      // 通知 panel iframe 也要退出選取模式
+      iframe.contentWindow.postMessage({ type: 'exitSelectMode' }, '*');
+    }
+  });
+
   document.addEventListener("mousemove", (e) => {
     if (!selecting) return;
     const el = document.elementFromPoint(e.clientX, e.clientY);

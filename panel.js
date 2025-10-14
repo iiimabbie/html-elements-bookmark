@@ -54,6 +54,14 @@ function populateSettingsForm(settings) {
     panelBgColorInput.value = settings.panelBgColor;
 }
 
+/** 離開選取模式 */
+function exitSelectMode() {
+  selecting = false;
+  addBtn.textContent = "＋";
+  addBtn.style.background = "";
+  parent.postMessage({type: "exitSelectMode"}, "*");
+}
+
 /** 渲染書籤列表 */
 function render() {
   ul.innerHTML = "";
@@ -81,10 +89,13 @@ function render() {
 // "新增書籤" 按鈕
 addBtn.onclick = () => {
   if (!selecting) {
+    // 進入選取模式
     selecting = true;
-    addBtn.textContent = "選取中...";
+    addBtn.textContent = "取消";
     addBtn.style.background = "#ff5252";
     parent.postMessage({type: "enterSelectMode"}, "*");
+  } else {
+    exitSelectMode();
   }
 };
 
@@ -95,17 +106,21 @@ window.addEventListener("message", (e) => {
     localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
     render();
 
-    addBtn.textContent = "＋";
-    addBtn.style.background = ""; // 恢復預設
-    selecting = false;
+    exitSelectMode();
   } else if (e.data.type === "exitSelectMode") {
-    addBtn.textContent = "＋";
-    addBtn.style.background = ""; // 恢復預設
     selecting = false;
+    addBtn.textContent = "＋";
+    addBtn.style.background = "";
   } else if (e.data.type === "expand") {
     document.body.classList.remove("collapsed");
   } else if (e.data.type === "collapse") {
     document.body.classList.add("collapsed");
+  }
+});
+
+window.addEventListener('keydown', (e) => {
+  if (selecting && e.key === 'Escape') {
+    exitSelectMode();
   }
 });
 
