@@ -32,6 +32,7 @@
     z-index: 999999;
     background: transparent;
     box-shadow: none;
+    border-radius: 8px 0 0 8px;
     transition: width 0.2s ease-in-out;
     overflow: hidden;
   `;
