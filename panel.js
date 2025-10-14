@@ -5,6 +5,9 @@ const key = urlParams.get('key');
 
 let bookmarks = JSON.parse(localStorage.getItem("swaggerBookmarks_" + key) || "[]");
 
+// Start in collapsed state
+document.body.classList.add("collapsed");
+
 render();
 
 let selecting = false;
@@ -31,6 +34,10 @@ window.addEventListener("message", (e) => {
     addBtn.textContent = "＋";
     addBtn.style.background = "white";
     selecting = false;
+  } else if (e.data.type === "expand") {
+    document.body.classList.remove("collapsed");
+  } else if (e.data.type === "collapse") {
+    document.body.classList.add("collapsed");
   }
 });
 

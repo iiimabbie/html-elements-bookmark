@@ -26,18 +26,33 @@
     position: fixed;
     top: 100px;
     right: 0;
-    width: 260px;
+    width: 40px;
     height: 320px;
     border: none;
     z-index: 999999;
-    background: white;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.2);
-    border-radius: 8px 0 0 8px;
+    background: transparent;
+    box-shadow: none;
+    transition: width 0.2s ease-in-out;
+    overflow: hidden;
   `;
   document.body.appendChild(iframe);
 
+  iframe.addEventListener('mouseenter', () => {
+    iframe.style.width = '260px';
+    iframe.style.background = 'white';
+    iframe.style.boxShadow = '-2px 0 8px rgba(0,0,0,0.2)';
+    iframe.contentWindow.postMessage({ type: "expand" }, "*");
+  });
+  iframe.addEventListener('mouseleave', () => {
+    iframe.style.width = '40px';
+    iframe.style.background = 'transparent';
+    iframe.style.boxShadow = 'none';
+    iframe.contentWindow.postMessage({ type: "collapse" }, "*");
+  });
+
   let selecting = false;
   let currentEl = null;
+
 
   const hoverBox = document.createElement("div");
   hoverBox.style.cssText = `
