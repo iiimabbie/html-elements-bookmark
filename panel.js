@@ -48,11 +48,11 @@ function loadSettings() {
 
 /** 將設定表單的值更新為目前的設定 */
 function populateSettingsForm(settings) {
-    collapsedSizeInput.value = settings.collapsedSize;
-    collapsedSizeValue.textContent = settings.collapsedSize + 'px';
-    primaryColorInput.value = settings.primaryColor;
-    iconColorInput.value = settings.iconColor;
-    panelBgColorInput.value = settings.panelBgColor;
+  collapsedSizeInput.value = settings.collapsedSize;
+  collapsedSizeValue.textContent = settings.collapsedSize + 'px';
+  primaryColorInput.value = settings.primaryColor;
+  iconColorInput.value = settings.iconColor;
+  panelBgColorInput.value = settings.panelBgColor;
 }
 
 /** 離開選取模式 */
@@ -60,7 +60,7 @@ function exitSelectMode() {
   selecting = false;
   addBtn.textContent = "＋";
   addBtn.style.background = "";
-  parent.postMessage({type: "exitSelectMode"}, "*");
+  parent.postMessage({ type: "exitSelectMode" }, "*");
 }
 
 /** 渲染書籤列表 */
@@ -84,7 +84,7 @@ function render() {
     nameSpan.textContent = b.name;
     nameSpan.style.flexGrow = "1";
     nameSpan.onclick = () => {
-      parent.postMessage({type: "scrollToElement", selector: b.selector}, "*");
+      parent.postMessage({ type: "scrollToElement", selector: b.selector }, "*");
     };
     li.appendChild(nameSpan);
 
@@ -135,10 +135,10 @@ ul.addEventListener('dragover', (e) => {
 
 // 當拖曳離開一個可放置區域時
 ul.addEventListener('dragleave', (e) => {
-    const target = e.target.closest('li');
-    if(target) {
-        target.classList.remove('drag-over-top', 'drag-over-bottom');
-    }
+  const target = e.target.closest('li');
+  if (target) {
+    target.classList.remove('drag-over-top', 'drag-over-bottom');
+  }
 });
 
 // 當拖曳結束 (放下) 時
@@ -158,9 +158,9 @@ ul.addEventListener('drop', (e) => {
     if (offset > rect.height / 2) {
       toIndex++;
     }
-    
+
     // 如果是從上面移到下面，目標索引要減 1
-    if(fromIndex < toIndex) {
+    if (fromIndex < toIndex) {
       toIndex--;
     }
 
@@ -193,7 +193,7 @@ addBtn.onclick = () => {
     selecting = true;
     addBtn.textContent = "取消";
     addBtn.style.background = "#ff5252";
-    parent.postMessage({type: "enterSelectMode"}, "*");
+    parent.postMessage({ type: "enterSelectMode" }, "*");
   } else {
     exitSelectMode();
   }
@@ -202,7 +202,7 @@ addBtn.onclick = () => {
 // 來自 content script 或自身的訊息
 window.addEventListener("message", (e) => {
   if (e.data.type === "addBookmark") {
-    bookmarks.push({name: e.data.name, selector: e.data.selector});
+    bookmarks.push({ name: e.data.name, selector: e.data.selector });
     localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
     render();
 

@@ -1,4 +1,4 @@
-(async function() {
+(async function () {
   const panelURL = chrome.runtime.getURL("panel.html");
 
   // 注入閃爍動畫的 CSS
@@ -18,7 +18,7 @@
   // 檢查是否已存在
   if (document.querySelector("#swaggerBookmarkPanel")) return;
 
-    // 用一個變數來儲存收合尺寸，以便動態更新
+  // 用一個變數來儲存收合尺寸，以便動態更新
   let collapsedSize = 40;
   let isAnimating = false;
   const animationDuration = 200;
@@ -99,7 +99,7 @@
     } else if (e.data.type === "scrollToElement") {
       const el = document.querySelector(e.data.selector);
       if (el) {
-        el.scrollIntoView({behavior: "smooth", block: "center"});
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
         el.classList.add("flash-highlight");
         setTimeout(() => {
           el.classList.remove("flash-highlight");
@@ -120,7 +120,7 @@
     if (selecting && e.key === 'Escape') {
       selecting = false;
       hoverBox.style.display = 'none'; // 隱藏紅色框線
-      
+
       // 通知 panel iframe 也要退出選取模式
       iframe.contentWindow.postMessage({ type: 'exitSelectMode' }, '*');
     }
@@ -147,11 +147,11 @@
     const selector = getUniqueSelector(currentEl);
     const name = currentEl.textContent.trim().slice(0, 40) || selector;
 
-    iframe.contentWindow.postMessage({type: "addBookmark", name, selector}, "*");
+    iframe.contentWindow.postMessage({ type: "addBookmark", name, selector }, "*");
 
     selecting = false;
     hoverBox.style.display = "none";
-    iframe.contentWindow.postMessage({type: "exitSelectMode"}, "*");
+    iframe.contentWindow.postMessage({ type: "exitSelectMode" }, "*");
   }, true);
 
   function getUniqueSelector(el) {
