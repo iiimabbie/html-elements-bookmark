@@ -25,29 +25,33 @@
   iframe.style.cssText = `
     position: fixed;
     top: 100px;
-    right: 0;
+    right: 20px;
     width: 40px;
-    height: 320px;
+    height: 40px;
     border: none;
     z-index: 999999;
     background: transparent;
-    box-shadow: none;
-    border-radius: 8px 0 0 8px;
-    transition: width 0.2s ease-in-out;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
     overflow: hidden;
   `;
   document.body.appendChild(iframe);
 
   iframe.addEventListener('mouseenter', () => {
     iframe.style.width = '260px';
-    iframe.style.background = 'white';
+    iframe.style.height = '320px';
+    iframe.style.borderRadius = '8px';
     iframe.style.boxShadow = '-2px 0 8px rgba(0,0,0,0.2)';
+    iframe.style.right = '0';
     iframe.contentWindow.postMessage({ type: "expand" }, "*");
   });
   iframe.addEventListener('mouseleave', () => {
     iframe.style.width = '40px';
-    iframe.style.background = 'transparent';
-    iframe.style.boxShadow = 'none';
+    iframe.style.height = '40px';
+    iframe.style.borderRadius = '50%';
+    iframe.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+    iframe.style.right = '20px';
     iframe.contentWindow.postMessage({ type: "collapse" }, "*");
   });
 

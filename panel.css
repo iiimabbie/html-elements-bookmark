@@ -1,3 +1,6 @@
+html {
+  background: transparent;
+}
 body {
   font-family: system-ui;
   margin: 0;
@@ -15,7 +18,7 @@ body {
   color: white;
   padding: 6px 10px;
   white-space: nowrap;
-  transition: background 0.1s;
+  transition: all 0.2s;
 }
 #header-title {
   display: flex;
@@ -77,11 +80,16 @@ body.collapsed {
   background: transparent;
 }
 body.collapsed #header {
-  background: transparent;
+  background: #0078d7;
   justify-content: center;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 body.collapsed #header-title svg {
-  fill: #0078d7; /* Make icon visible */
+  fill: white;
+  filter: none;
 }
 body.collapsed #header-title span,
 body.collapsed #add,
