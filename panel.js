@@ -15,6 +15,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const key = urlParams.get('key');
 let bookmarks = JSON.parse(localStorage.getItem("swaggerBookmarks_" + key) || "[]");
 let selecting = false;
+let draggedItem = null;
 
 // 預設設定
 const defaultSettings = {
@@ -67,10 +68,25 @@ function render() {
   ul.innerHTML = "";
   bookmarks.forEach((b, i) => {
     const li = document.createElement("li");
-    li.textContent = b.name;
-    li.onclick = () => {
+    li.dataset.index = i;
+    li.draggable = true;
+
+    const handle = document.createElement("div");
+    handle.className = "drag-handle";
+    handle.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+      </svg>
+    `;
+    li.appendChild(handle);
+
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = b.name;
+    nameSpan.style.flexGrow = "1";
+    nameSpan.onclick = () => {
       parent.postMessage({type: "scrollToElement", selector: b.selector}, "*");
     };
+    li.appendChild(nameSpan);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "×";
@@ -86,6 +102,90 @@ function render() {
 }
 
 // --- Event Listeners ---
+// 當開始拖曳時
+ul.addEventListener('dragstart', (e) => {
+  draggedItem = e.target;
+  // 使用 setTimeout 讓瀏覽器有時間渲染拖曳影像
+  setTimeout(() => {
+    draggedItem.classList.add('dragging');
+  }, 0);
+});
+
+// 當拖曳經過其他元素時
+ul.addEventListener('dragover', (e) => {
+  e.preventDefault(); // 必須阻止預設行為才能觸發 drop
+  const target = e.target.closest('li');
+  if (target && target !== draggedItem) {
+    // 移除所有預覽線
+    ul.querySelectorAll('li').forEach(item => {
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+
+    const rect = target.getBoundingClientRect();
+    const offset = e.clientY - rect.top;
+
+    // 如果滑鼠在目標元素的前半部分，就在上方顯示預覽線，否則在下方
+    if (offset < rect.height / 2) {
+      target.classList.add('drag-over-top');
+    } else {
+      target.classList.add('drag-over-bottom');
+    }
+  }
+});
+
+// 當拖曳離開一個可放置區域時
+ul.addEventListener('dragleave', (e) => {
+    const target = e.target.closest('li');
+    if(target) {
+        target.classList.remove('drag-over-top', 'drag-over-bottom');
+    }
+});
+
+// 當拖曳結束 (放下) 時
+ul.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const target = e.target.closest('li');
+  if (target && draggedItem) {
+    target.classList.remove('drag-over-top', 'drag-over-bottom');
+
+    const fromIndex = parseInt(draggedItem.dataset.index, 10);
+    let toIndex = parseInt(target.dataset.index, 10);
+
+    const rect = target.getBoundingClientRect();
+    const offset = e.clientY - rect.top;
+
+    // 如果是放在目標的下半部，目標索引要加 1
+    if (offset > rect.height / 2) {
+      toIndex++;
+    }
+    
+    // 如果是從上面移到下面，目標索引要減 1
+    if(fromIndex < toIndex) {
+      toIndex--;
+    }
+
+    // 更新書籤陣列
+    const [reorderedItem] = bookmarks.splice(fromIndex, 1);
+    bookmarks.splice(toIndex, 0, reorderedItem);
+
+    // 儲存並重新渲染
+    localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
+    render();
+  }
+});
+
+// 不管成功或失敗，當拖曳操作完全結束時
+ul.addEventListener('dragend', () => {
+  if (draggedItem) {
+    draggedItem.classList.remove('dragging');
+    draggedItem = null;
+    // 清理所有可能殘留的預覽線
+    ul.querySelectorAll('li').forEach(item => {
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+  }
+});
+
 // "新增書籤" 按鈕
 addBtn.onclick = () => {
   if (!selecting) {

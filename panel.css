@@ -78,6 +78,34 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background-color 0.2s, border-top 0.2s, border-bottom 0.2s;
+}
+
+/* 拖曳把手的樣式 */
+.drag-handle {
+  cursor: grab;
+  padding: 0 8px 0 4px;
+  color: #ccc;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+.drag-handle:hover {
+  color: #888;
+}
+
+/* 當一個項目正在被拖曳時的樣式 */
+#list li.dragging {
+  opacity: 0.5;
+  background: #cce5ff;
+}
+
+/* 當拖曳到一個項目的上方或下方時，顯示預覽線 */
+#list li.drag-over-top {
+  border-top: 2px solid var(--primary-color);
+}
+#list li.drag-over-bottom {
+  border-bottom: 2px solid var(--primary-color);
 }
 
 #list li:hover {
