@@ -1,11 +1,14 @@
+'use strict';
 const ul = document.getElementById("list");
 const addBtn = document.getElementById("add");
+const deleteModeBtn = document.getElementById("delete-mode-btn");
+const deleteControls = document.getElementById("delete-controls");
+const selectAllCheckbox = document.getElementById("select-all-checkbox");
+const deleteSelectedBtn = document.getElementById("delete-selected-btn");
 const settingsBtn = document.getElementById("settings-btn");
 const settingsPanel = document.getElementById("settings-panel");
 const closeSettingsBtn = document.getElementById("close-settings-btn");
 const saveSettingsBtn = document.getElementById("save-settings-btn");
-const collapsedSizeInput = document.getElementById("collapsed-size");
-const collapsedSizeValue = document.getElementById("collapsed-size-value");
 const primaryColorInput = document.getElementById("primary-color");
 const iconColorInput = document.getElementById("icon-color");
 const panelBgColorInput = document.getElementById("panel-bg-color");
@@ -15,11 +18,11 @@ const urlParams = new URLSearchParams(window.location.search);
 const key = urlParams.get('key');
 let bookmarks = JSON.parse(localStorage.getItem("swaggerBookmarks_" + key) || "[]");
 let selecting = false;
+let deleteMode = false;
 let draggedItem = null;
 
 // 預設設定
 const defaultSettings = {
-  collapsedSize: 40,
   primaryColor: '#0078d7',
   iconColor: '#ffffff',
   panelBgColor: '#fafafa',
@@ -28,13 +31,10 @@ const defaultSettings = {
 // --- Functions ---
 function applySettings(settings) {
   const root = document.documentElement;
-  root.style.setProperty('--collapsed-size', settings.collapsedSize + 'px');
   root.style.setProperty('--primary-color', settings.primaryColor);
   root.style.setProperty('--icon-color', settings.iconColor);
   root.style.setProperty('--panel-bg-color', settings.panelBgColor);
 
-  // 通知 content script 更新 iframe 尺寸
-  parent.postMessage({ type: "updateCollapsedSize", size: settings.collapsedSize }, "*");
 }
 
 /** 從 localStorage 載入設定 */
@@ -48,19 +48,42 @@ function loadSettings() {
 
 /** 將設定表單的值更新為目前的設定 */
 function populateSettingsForm(settings) {
-  collapsedSizeInput.value = settings.collapsedSize;
-  collapsedSizeValue.textContent = settings.collapsedSize + 'px';
   primaryColorInput.value = settings.primaryColor;
   iconColorInput.value = settings.iconColor;
   panelBgColorInput.value = settings.panelBgColor;
+}
+
+/** 進入刪除模式 */
+function enterDeleteMode() {
+  deleteMode = true;
+  addBtn.classList.add("hidden");
+  settingsBtn.classList.add("hidden");
+  deleteControls.classList.remove("hidden");
+  document.body.classList.add("delete-mode");
+  render();
+}
+
+/** 離開刪除模式 */
+function exitDeleteMode() {
+  deleteMode = false;
+  addBtn.classList.remove("hidden");
+  settingsBtn.classList.remove("hidden");
+  deleteControls.classList.add("hidden");
+  selectAllCheckbox.checked = false;
+  document.body.classList.remove("delete-mode");
+  render();
 }
 
 /** 離開選取模式 */
 function exitSelectMode() {
   selecting = false;
   addBtn.textContent = "＋";
-  addBtn.style.background = "";
+  addBtn.classList.remove('cancel-select-btn');
   parent.postMessage({ type: "exitSelectMode" }, "*");
+  // 如果在選取模式下，也退出刪除模式
+  if (deleteMode) {
+    exitDeleteMode();
+  }
 }
 
 /** 渲染書籤列表 */
@@ -69,27 +92,45 @@ function render() {
   bookmarks.forEach((b, i) => {
     const li = document.createElement("li");
     li.dataset.index = i;
-    li.draggable = true;
+    li.draggable = !deleteMode; // 在刪除模式下不可拖曳
 
-    const handle = document.createElement("div");
-    handle.className = "drag-handle";
-    handle.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-      </svg>
-    `;
-    li.appendChild(handle);
+    // 根據是否為刪除模式，決定要顯示 checkbox 還是拖曳 handle
+    if (deleteMode) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "delete-checkbox";
+      checkbox.dataset.index = i;
+      li.appendChild(checkbox);
+    } else {
+      const handle = document.createElement("div");
+      handle.className = "drag-handle";
+      handle.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+        </svg>
+      `;
+      li.appendChild(handle);
+    }
 
     const nameSpan = document.createElement("span");
     nameSpan.textContent = b.name;
     nameSpan.style.flexGrow = "1";
     nameSpan.onclick = () => {
-      parent.postMessage({ type: "scrollToElement", selector: b.selector }, "*");
+      // 在刪除模式下，點擊 span 也會勾選 checkbox
+      if (deleteMode) {
+        const checkbox = li.querySelector(".delete-checkbox");
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+        }
+      } else {
+        parent.postMessage({ type: "scrollToElement", selector: b.selector }, "*");
+      }
     };
     li.appendChild(nameSpan);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "×";
+    deleteBtn.style.display = deleteMode ? "none" : "block"; // 在刪除模式下隱藏
     deleteBtn.onclick = (e) => {
       e.stopPropagation();
       bookmarks.splice(i, 1);
@@ -104,16 +145,24 @@ function render() {
 // --- Event Listeners ---
 // 當開始拖曳時
 ul.addEventListener('dragstart', (e) => {
+  if (deleteMode) {
+    e.preventDefault();
+    return;
+  }
   draggedItem = e.target;
   // 使用 setTimeout 讓瀏覽器有時間渲染拖曳影像
   setTimeout(() => {
-    draggedItem.classList.add('dragging');
+    if (draggedItem) {
+      draggedItem.classList.add('dragging');
+    }
   }, 0);
 });
 
 // 當拖曳經過其他元素時
 ul.addEventListener('dragover', (e) => {
   e.preventDefault(); // 必須阻止預設行為才能觸發 drop
+  if (deleteMode || !draggedItem) return;
+
   const target = e.target.closest('li');
   if (target && target !== draggedItem) {
     // 移除所有預覽線
@@ -144,8 +193,10 @@ ul.addEventListener('dragleave', (e) => {
 // 當拖曳結束 (放下) 時
 ul.addEventListener('drop', (e) => {
   e.preventDefault();
+  if (deleteMode || !draggedItem) return;
+
   const target = e.target.closest('li');
-  if (target && draggedItem) {
+  if (target) {
     target.classList.remove('drag-over-top', 'drag-over-bottom');
 
     const fromIndex = parseInt(draggedItem.dataset.index, 10);
@@ -192,12 +243,53 @@ addBtn.onclick = () => {
     // 進入選取模式
     selecting = true;
     addBtn.textContent = "取消";
-    addBtn.style.background = "#ff5252";
+    addBtn.classList.add('cancel-select-btn');
     parent.postMessage({ type: "enterSelectMode" }, "*");
   } else {
     exitSelectMode();
   }
 };
+
+// "刪除模式" 按鈕
+deleteModeBtn.onclick = () => {
+  if (deleteMode) {
+    exitDeleteMode();
+  } else {
+    enterDeleteMode();
+  }
+};
+
+// "全選" checkbox
+selectAllCheckbox.onchange = (e) => {
+  const checkboxes = ul.querySelectorAll(".delete-checkbox");
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = e.target.checked;
+  });
+};
+
+// "刪除選取" 按鈕
+deleteSelectedBtn.onclick = () => {
+  const checkboxes = ul.querySelectorAll(".delete-checkbox:checked");
+  const indicesToDelete = Array.from(checkboxes).map(cb => parseInt(cb.dataset.index, 10));
+
+  if (indicesToDelete.length === 0) {
+    alert("請先選取要刪除的書籤。");
+    return;
+  }
+
+  // 顯示確認對話框
+  if (confirm(`確定要刪除 ${indicesToDelete.length} 個書籤嗎？`)) {
+    // 從後往前刪除，避免 index 錯亂
+    indicesToDelete.sort((a, b) => b - a).forEach(index => {
+      bookmarks.splice(index, 1);
+    });
+
+    localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
+    render(); // 重新渲染以反映刪除後的列表
+    exitDeleteMode(); // 刪除完成後退出刪除模式
+  }
+};
+
 
 // 來自 content script 或自身的訊息
 window.addEventListener("message", (e) => {
@@ -239,7 +331,6 @@ closeSettingsBtn.onclick = () => {
 // 儲存設定
 saveSettingsBtn.onclick = () => {
   const newSettings = {
-    collapsedSize: parseInt(collapsedSizeInput.value, 10),
     primaryColor: primaryColorInput.value,
     iconColor: iconColorInput.value,
     panelBgColor: panelBgColorInput.value,
@@ -248,12 +339,6 @@ saveSettingsBtn.onclick = () => {
   applySettings(newSettings);
   settingsPanel.classList.add("hidden");
 };
-
-// 即時顯示尺寸滑桿的數值
-collapsedSizeInput.oninput = () => {
-  collapsedSizeValue.textContent = collapsedSizeInput.value + 'px';
-};
-
 
 // --- Initial Run ---
 document.body.classList.add("collapsed");

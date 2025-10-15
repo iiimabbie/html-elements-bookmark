@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "HTML Element Bookmarker",
-  "version": "2.0",
+  "version": "2.1",
   "description": "在頁面右側添加可對任意元素加書籤的浮動面板，適合 Swagger 或長頁面使用。點一下新增書籤後，點擊書籤可以自動捲動到該位置。",
   "permissions": [
     "storage",

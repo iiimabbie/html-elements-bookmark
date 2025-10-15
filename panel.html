@@ -15,7 +15,20 @@
       </svg>
       <span>頁面書籤</span>
     </div>
-    <button id="add">＋</button>
+    <div id="delete-controls" class="hidden">
+      <input type="checkbox" id="select-all-checkbox" title="全選">
+      <button id="delete-selected-btn">刪除</button>
+    </div>
+    <button id="add">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+      </svg>
+    </button>
+    <button id="delete-mode-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+      </svg>
+    </button>
   </div>
   <ul id="list"></ul>
   <!-- 設定按鈕 -->
@@ -33,10 +46,6 @@
       <button id="close-settings-btn">×</button>
     </div>
     <div class="settings-content">
-      <div class="setting-item">
-        <label for="collapsed-size">尺寸: <span id="collapsed-size-value">40px</span></label>
-        <input type="range" id="collapsed-size" min="30" max="60" value="40">
-      </div>
       <div class="setting-item">
         <label for="primary-color">主要顏色</label>
         <input type="color" id="primary-color" value="#0078d7">

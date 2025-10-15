@@ -19,7 +19,7 @@
   if (document.querySelector("#swaggerBookmarkPanel")) return;
 
   // 用一個變數來儲存收合尺寸，以便動態更新
-  let collapsedSize = 40;
+  const collapsedSize = 30;
   let isAnimating = false;
   const animationDuration = 200;
 
@@ -88,15 +88,7 @@
 
   // 通信：滾動到元素
   window.addEventListener("message", (e) => {
-    // 監聽來自 panel 的尺寸更新訊息
-    if (e.data.type === "updateCollapsedSize") {
-      collapsedSize = e.data.size;
-      // 如果當前是收合狀態，立即套用新尺寸
-      if (iframe.style.width !== '260px') {
-        iframe.style.width = collapsedSize + 'px';
-        iframe.style.height = collapsedSize + 'px';
-      }
-    } else if (e.data.type === "scrollToElement") {
+    if (e.data.type === "scrollToElement") {
       const el = document.querySelector(e.data.selector);
       if (el) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
