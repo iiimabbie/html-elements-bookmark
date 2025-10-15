@@ -226,8 +226,48 @@ body.delete-mode #list li:hover {
   cursor: pointer !important;
 }
 
+/* --- Edit Mode Elements --- */
+.edit-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 4px;
+}
 
-/* --- 設定介面所有樣式 --- */
+.edit-btn:hover {
+  color: var(--primary-color);
+}
+
+.edit-input {
+  flex-grow: 1;
+  padding: 2px 4px; /* Adjusted padding */
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-right: 8px;
+  font-size: inherit; /* Inherit font size */
+}
+
+.save-btn, .cancel-btn {
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  color: white;
+  font-size: 12px; /* Added font size */
+}
+
+.save-btn {
+  background: var(--primary-color);
+  margin-right: 5px;
+}
+
+.cancel-btn {
+  background: #aaa;
+}
+
+/* --- 設定面板 --- */
 #settings-btn {
   position: absolute;
   bottom: 8px;

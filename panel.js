@@ -86,6 +86,52 @@ function exitSelectMode() {
   }
 }
 
+/** 進入編輯模式 */
+function enterEditMode(li, bookmark, index) {
+  const nameSpan = li.querySelector('span');
+  const editBtn = li.querySelector('.edit-btn');
+  const deleteBtn = li.querySelector('button:not(.edit-btn)'); // Assuming delete button is the other button
+
+  nameSpan.classList.add('hidden');
+  editBtn.classList.add('hidden');
+  if (deleteBtn) deleteBtn.classList.add('hidden');
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = bookmark.name;
+  input.className = 'edit-input';
+  li.insertBefore(input, nameSpan);
+  input.focus();
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = 'O';
+  saveBtn.className = 'save-btn';
+  li.appendChild(saveBtn);
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'X';
+  cancelBtn.className = 'cancel-btn';
+  li.appendChild(cancelBtn);
+
+  saveBtn.onclick = () => {
+    bookmark.name = input.value;
+    localStorage.setItem("swaggerBookmarks_" + key, JSON.stringify(bookmarks));
+    render();
+  };
+
+  cancelBtn.onclick = () => {
+    render(); // Simply re-render to exit edit mode without saving
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      saveBtn.click();
+    } else if (e.key === 'Escape') {
+      cancelBtn.click();
+    }
+  });
+}
+
 /** 渲染書籤列表 */
 function render() {
   ul.innerHTML = "";
@@ -127,6 +173,20 @@ function render() {
       }
     };
     li.appendChild(nameSpan);
+
+    const editBtn = document.createElement("button");
+    editBtn.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
+    `;
+    editBtn.className = "edit-btn";
+    editBtn.style.display = deleteMode ? "none" : "block";
+    editBtn.onclick = (e) => {
+      e.stopPropagation();
+      enterEditMode(li, b, i);
+    };
+    li.appendChild(editBtn);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "×";
