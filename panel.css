@@ -35,6 +35,7 @@ body {
 
 body:not(.collapsed) #header {
   height: 20px;
+  justify-content: flex-start;
 }
 
 #header-title {
@@ -42,6 +43,10 @@ body:not(.collapsed) #header {
   align-items: center;
   gap: 6px;
   overflow: hidden;
+}
+
+body:not(.collapsed) #header-title {
+  margin-right: auto;
 }
 
 #header-title svg {
