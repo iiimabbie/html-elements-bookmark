@@ -1,35 +1,58 @@
-# Swagger 元素書籤 (Swagger Element Bookmarker)
+[English](./README.md) | [Traditional Chinese (正體中文)](./README_zh-TW.md)
 
-這是一個 Chrome 擴充功能，它會在頁面右側添加一個浮動面板，讓您可以對頁面上的任何元素（例如 Swagger API 的端點）添加書籤，方便您在長頁面中快速導航。
+# Swagger Element Bookmarker
 
-## 功能
+A highly customizable Chrome Extension that adds a floating panel to any webpage, allowing you to bookmark any element for quick navigation. Perfect for long, complex pages like Swagger UI, API documentation, or lengthy articles.
 
-*   元素書籤：點擊「＋」按鈕進入選取模式，再點擊頁面上任何一個元素，即可將其加入書籤列表。
-*   快速跳轉：點擊面板中的任一書籤，頁面會平滑滾動到該元素的位置。
-*   位置提示：跳轉到書籤位置時，該元素會閃爍一下黃色背景，讓您立即知道目標在哪。
-*   刪除書籤：每個書籤後面都有一個「×」按鈕，點擊即可立即刪除該書籤。
-*   分頁儲存：每個頁面的書籤清單都是獨立的，您在不同頁面可以有不同的書籤。
+---
 
-## 如何使用
+###  Features
 
-1.  新增書籤：
-    *   點擊面板右上角的「＋」按鈕，按鈕會變為「選取中...」。
-    *   將滑鼠移動到您想加入書籤的網頁內容上，該區塊會出現紅色外框。
-    *   點擊一下，該書籤就會被加入右側面板的清單中。
+*   **Bookmark Anything**: Click the '+' button, then click any element on the page—an API endpoint, a specific paragraph, an image—to save it as a bookmark.
+*   **Quick Navigation**: Instantly scroll to any bookmarked element with a single click.
+*   **Visual Cue**: The destination element flashes with a yellow highlight, so you never lose track of where you've landed.
+*   **Intuitive Ordering**: Easily reorder your bookmarks using drag-and-drop to create the perfect workflow.
+*   **Site-Specific Storage**: Bookmarks are saved independently for each unique URL, keeping your workspaces clean and organized.
+*   **Cancel Anytime**: Accidentally entered selection mode? Simply click the "Cancel" button or press the `Esc` key to exit without making a selection.
+*   **Highly Customizable**: Click the gear icon to personalize the appearance. Adjust the size of the collapsed button and change the colors (primary, icon, panel background) to match your favorite theme or website design.
+*   **Sleek & Unobtrusive UI**: The panel elegantly collapses into a compact floating action button when not in use, and smoothly expands on mouse hover.
 
-2.  跳轉書籤：
-    *   直接點擊面板中您想查看的書籤名稱。
+> **Suggestion:** Consider adding a short GIF here demonstrating the main features like adding, clicking, reordering, and customizing bookmarks.
 
-3.  刪除書籤：
-    *   點擊書籤名稱右側的「×」按鈕。
+###  How to Use
 
-## 開發與安裝
+1.  **Add a Bookmark**:
+    *   Hover over the floating icon to expand the panel.
+    *   Click the `+` button. The button will change to "Cancel".
+    *   As you move your mouse over the webpage, elements will be highlighted with a red border.
+    *   Click the element you want to bookmark. It will be instantly added to the list.
 
-如果您想自行修改或安裝此專案，請依照以下步驟：
+2.  **Navigate to a Bookmark**:
+    *   Simply click on any bookmark in the panel. The page will smoothly scroll to its position.
 
-1.  下載或 clone 此專案的程式碼。
-2.  打開 Chrome 瀏覽器，在網址列輸入 `chrome://extensions` 並前往。
-3.  在頁面右上角，打開「開發人員模式」。
-4.  點擊左上角的「載入未封裝項目」。
-5.  選擇您剛剛下載的專案資料夾。
-6.  擴充功能安裝完成，您可以在任何網頁上看到右側的浮動面板。
+3.  **Reorder Bookmarks**:
+    *   Click and hold the `::` drag handle next to a bookmark's name.
+    *   Drag it to your desired position in the list and release.
+
+4.  **Delete a Bookmark**:
+    *   Click the `×` button on the right side of the bookmark you wish to remove.
+
+5.  **Customize Appearance**:
+    *   Click the gear `⚙️` icon at the bottom-right of the expanded panel.
+    *   Adjust the collapsed button size with the slider and pick your preferred colors.
+    *   Click "Save". The changes will be applied instantly.
+
+###  Installation for Development
+
+If you wish to modify or inspect the code, follow these steps to install it locally:
+
+1.  Clone or download this repository to your local machine.
+2.  Open the Chrome browser and navigate to `chrome://extensions`.
+3.  Enable "Developer mode" using the toggle in the top-right corner.
+4.  Click on the "Load unpacked" button in the top-left corner.
+5.  Select the project folder you just downloaded.
+6.  The extension is now installed! You should see the floating bookmark panel on any webpage.
+
+### 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
