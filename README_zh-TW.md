@@ -1,6 +1,6 @@
 [English](./README.md) | [Traditional Chinese (正體中文)](./README_zh-TW.md)
 
-# Swagger 元素書籤 (Swagger Element Bookmarker)
+# HTML 元素書籤 (HTML Element Bookmarker)
 
 這是一個功能強大的 Chrome 擴充功能，它會在頁面右側添加一個浮動面板，讓您可以對頁面上的**任何元素**添加書籤，方便您在長頁面中快速導航。特別適合在 Swagger UI、API 文件或任何長篇文章中使用。
 
