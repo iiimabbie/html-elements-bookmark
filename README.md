@@ -1,5 +1,8 @@
 [English](./README.md) | [Traditional Chinese (正體中文)](./README_zh-TW.md)
 
+![GitHub license](https://img.shields.io/badge/license-MIT-pink.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-ff69b4)
+
 # HTML Element Bookmarker
 
 A highly customizable Chrome Extension that adds a floating panel to any webpage, allowing you to bookmark any element for quick navigation. Perfect for long, complex pages like Swagger UI, API documentation, or lengthy articles.
